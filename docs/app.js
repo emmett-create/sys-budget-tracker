@@ -77,6 +77,9 @@ function renderSummary() {
   const pPct = Math.min(tPlan / TOTAL_BUDGET * 100, 100 - aPct);
   setStyle('progress-actual',  'width', aPct + '%');
   setStyle('progress-planned', 'width', pPct + '%');
+  const ppEl = document.getElementById('progress-planned');
+  if (ppEl) ppEl.dataset.tooltip = tPlan > 0 ? fmt(tPlan) + ' planned' : '';
+  setText('legend-planned-amt', tPlan > 0 ? '(' + fmt(tPlan) + ')' : '');
 
   // Monthly totals for current month
   const now   = new Date();
