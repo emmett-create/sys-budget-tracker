@@ -21,6 +21,7 @@ let calM        = new Date().getMonth();
 let deleteId    = null;
 let editId      = null;
 let convertId   = null;
+let pending     = [];   // DocuSign inbox items awaiting review (status = 'pending')
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Data ─────────────────────────────────────────────────────────────────────
 async function load() {
   const r = await fetch(`${API}?order=date.desc,created_at.desc`, { headers: SB });
-  rows = r.ok ? await r.json() : [];
+  const all = r.ok ? await r.json() : [];
+  pending = all.filter(x => x.status === 'pending');   // inbox
+  rows    = all.filter(x => x.status !== 'pending');   // everything else (totals/table/calendar)
   render();
 }
 
@@ -61,7 +64,45 @@ async function update(id, data) {
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
   renderSummary();
+  renderInbox();
   view === 'calendar' ? renderCal() : renderTable();
+}
+
+function renderInbox() {
+  const sec  = document.getElementById('inbox-section');
+  const list = document.getElementById('inbox-list');
+  if (!sec || !list) return;
+  if (!pending.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  setText('inbox-count', `(${pending.length})`);
+  list.innerHTML = pending.map(e => {
+    const who  = e.creator_handle ? '@' + esc(e.creator_handle.replace(/^@/, ''))
+                                  : (e.description ? esc(e.description) : 'Contract');
+    const raw  = (e.notes || '').trim();
+    const link = /^https?:\/\//.test(raw)
+      ? `<a href="${esc(raw)}" target="_blank" style="color:#d29922">View contract</a>`
+      : esc(raw);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #2a2a2a">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <span style="font-weight:600">${who}</span>
+        <span style="color:#8b949e;font-size:12px">${fmtDate(e.date)}</span>
+        ${link ? `<span style="font-size:12px">${link}</span>` : ''}
+      </div>
+      <div style="white-space:nowrap">
+        <button class="btn-inbox-go" data-id="${e.id}" style="background:#d29922;color:#000;border:none;border-radius:6px;padding:6px 12px;font-weight:600;cursor:pointer">Assign + add →</button>
+        <button class="btn-inbox-x" data-id="${e.id}" style="background:none;border:none;color:#8b949e;cursor:pointer;font-size:14px;margin-left:4px">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.btn-inbox-go').forEach(b =>
+    b.addEventListener('click', () => {
+      const entry = pending.find(r => String(r.id) === b.dataset.id);
+      if (entry) openEditModal(entry);   // reuse the form to set campaign + amount
+    })
+  );
+  list.querySelectorAll('.btn-inbox-x').forEach(b =>
+    b.addEventListener('click', () => openDelete(b.dataset.id))
+  );
 }
 
 function renderSummary() {
@@ -308,6 +349,7 @@ function bindAll() {
       description:    document.getElementById('f-description').value.trim() || null,
       amount:         parseFloat(document.getElementById('f-amount').value),
       notes:          document.getElementById('f-notes').value.trim() || null,
+      status:         'confirmed',   // saving always confirms (incl. completing an inbox item)
     };
     const ok = isEdit ? await update(editId, payload) : await insert(payload);
     btn.disabled = false; btn.textContent = isEdit ? 'Save Changes' : 'Add Entry';
