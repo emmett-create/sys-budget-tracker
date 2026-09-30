@@ -439,3 +439,65 @@ input::placeholder, textarea::placeholder { color: #555; }
 .progress-track { overflow: visible; }
 .progress-track .progress-fill.actual { border-radius: 0; }
 
+
+/* ── Lumanu inbox + invoice/contract linking (added 2026-09-30) ──────────── */
+.btn-attach-invoice, .btn-view-invoice, .btn-add-contract, .btn-view-contract {
+  background: none; border: none; color: #444;
+  cursor: pointer; font-size: 13px; padding: 4px 6px; border-radius: 4px;
+  text-decoration: none; display: inline-block;
+}
+.btn-attach-invoice:hover, .btn-add-contract:hover { color: #d29922; background: #2d2107; }
+.btn-view-invoice:hover, .btn-view-contract:hover { color: #3fb950; background: #0d2d1a; }
+
+.btn-invoice {
+  background: none; border: 1px solid #30363d;
+  border-radius: 4px; color: #555;
+  cursor: pointer; font-size: 11px; font-weight: 600;
+  padding: 3px 8px; white-space: nowrap;
+  transition: all 0.15s;
+}
+.btn-invoice:hover { border-color: #3fb950; color: #3fb950; }
+.btn-invoice.invoiced {
+  background: #0d2d1a; border-color: #3fb950; color: #3fb950;
+}
+
+.btn-unmark {
+  background: none; border: 1px solid #30363d;
+  border-radius: 4px; color: #555;
+  cursor: pointer; font-size: 11px; font-weight: 600;
+  padding: 3px 8px; white-space: nowrap;
+  transition: all 0.15s;
+}
+.btn-unmark:hover { border-color: #f85149; color: #f85149; }
+
+.invoice-summary { margin-bottom: 16px; }
+.invoice-total {
+  background: #0d2d1a; border: 1px solid #3fb950;
+  border-radius: 8px; padding: 16px 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.invoice-total-label { font-size: 13px; color: #8b949e; }
+.invoice-total-amt   { font-size: 28px; font-weight: 700; color: #3fb950; }
+.invoice-total-count { font-size: 12px; color: #8b949e; margin-left: auto; }
+
+.badge-lumanu {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 10px; white-space: nowrap;
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.badge-lumanu.not_sent       { background: #21262d; color: #8b949e; }
+.badge-lumanu.needs_approval { background: #2d2107; color: #d29922; }
+.badge-lumanu.approved       { background: #0d1f3c; color: #58a6ff; }
+.badge-lumanu.pending        { background: #2d1f0f; color: #fb923c; }
+.badge-lumanu.issued         { background: #0d2d1a; color: #3fb950; }
+.badge-lumanu.canceled       { background: #2d0d0d; color: #f85149; }
+
+.lumanu-export-bar {
+  display: flex; align-items: center; gap: 12px;
+  background: #0d2d1a; border: 1px solid #3fb950;
+  border-radius: 8px; padding: 10px 16px;
+  margin-bottom: 14px; font-size: 13px; color: #3fb950; font-weight: 600;
+}
+.lumanu-export-bar .btn-pri { margin-left: auto; }
+
+.row-check { width: auto; cursor: pointer; }
